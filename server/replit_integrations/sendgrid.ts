@@ -1,0 +1,89 @@
+// SendGrid integration for sending emails
+import sgMail from '@sendgrid/mail';
+
+let connectionSettings: any;
+
+async function getCredentials() {
+  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
+  const xReplitToken = process.env.REPL_IDENTITY 
+    ? 'repl ' + process.env.REPL_IDENTITY 
+    : process.env.WEB_REPL_RENEWAL 
+    ? 'depl ' + process.env.WEB_REPL_RENEWAL 
+    : null;
+
+  if (!xReplitToken) {
+    throw new Error('X_REPLIT_TOKEN not found for repl/depl');
+  }
+
+  connectionSettings = await fetch(
+    'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=sendgrid',
+    {
+      headers: {
+        'Accept': 'application/json',
+        'X_REPLIT_TOKEN': xReplitToken
+      }
+    }
+  ).then(res => res.json()).then(data => data.items?.[0]);
+
+  if (!connectionSettings || (!connectionSettings.settings.api_key || !connectionSettings.settings.from_email)) {
+    throw new Error('SendGrid not connected');
+  }
+  return {apiKey: connectionSettings.settings.api_key, email: connectionSettings.settings.from_email};
+}
+
+// WARNING: Never cache this client.
+// Access tokens expire, so a new client must be created each time.
+// Always call this function again to get a fresh client.
+export async function getUncachableSendGridClient() {
+  const {apiKey, email} = await getCredentials();
+  sgMail.setApiKey(apiKey);
+  return {
+    client: sgMail,
+    fromEmail: email
+  };
+}
+
+export interface ContactFormData {
+  name: string;
+  email: string;
+  company?: string;
+  message: string;
+}
+
+export async function sendContactFormEmail(data: ContactFormData): Promise<void> {
+  const { client, fromEmail } = await getUncachableSendGridClient();
+  
+  const emailContent = `
+New Contact Form Submission
+
+Name: ${data.name}
+Email: ${data.email}
+Company: ${data.company || 'Not provided'}
+
+Message:
+${data.message}
+  `.trim();
+
+  const htmlContent = `
+<h2>New Contact Form Submission</h2>
+<p><strong>Name:</strong> ${data.name}</p>
+<p><strong>Email:</strong> ${data.email}</p>
+<p><strong>Company:</strong> ${data.company || 'Not provided'}</p>
+<h3>Message:</h3>
+<p>${data.message.replace(/\n/g, '<br>')}</p>
+  `.trim();
+
+  // Send to both info@ithingsolutions.com and test email
+  const recipients = ['info@ithingsolutions.com', 'muathith@outlook.com'];
+  
+  const messages = recipients.map(to => ({
+    to,
+    from: fromEmail,
+    subject: `New Contact Form: ${data.name} - iThing Smart Business Solutions`,
+    text: emailContent,
+    html: htmlContent,
+    replyTo: data.email,
+  }));
+
+  await Promise.all(messages.map(msg => client.send(msg)));
+}
