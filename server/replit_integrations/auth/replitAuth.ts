@@ -8,6 +8,8 @@ import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { authStorage } from "./storage";
 
+const isReplitAuthConfigured = !!process.env.REPL_ID;
+
 const getOidcConfig = memoize(
   async () => {
     return await client.discovery(
@@ -61,6 +63,13 @@ async function upsertUser(claims: any) {
 }
 
 export async function setupAuth(app: Express) {
+  if (!isReplitAuthConfigured) {
+    console.warn(
+      "Replit Auth is not configured (missing REPL_ID) - admin login routes are disabled."
+    );
+    return;
+  }
+
   app.set("trust proxy", 1);
   app.use(getSession());
   app.use(passport.initialize());
@@ -131,6 +140,10 @@ export async function setupAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
+  if (!isReplitAuthConfigured) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
   const user = req.user as any;
 
   if (!req.isAuthenticated() || !user.expires_at) {

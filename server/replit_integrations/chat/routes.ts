@@ -2,10 +2,19 @@ import type { Express, Request, Response } from "express";
 import OpenAI from "openai";
 import { chatStorage } from "./storage";
 
-const openai = new OpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-});
+let openai: OpenAI | undefined;
+
+function getOpenAIClient(): OpenAI | undefined {
+  const apiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
+  if (!apiKey) return undefined;
+  if (!openai) {
+    openai = new OpenAI({
+      apiKey,
+      baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+    });
+  }
+  return openai;
+}
 
 const SYSTEM_PROMPT = `You are the AI Support Assistant for iThing Smart Business Solutions (iThing لتطوير حلول الأعمال الذكية).
 
@@ -98,6 +107,14 @@ export function registerChatRoutes(app: Express): void {
     "/api/conversations/:id/messages",
     async (req: Request, res: Response) => {
       try {
+        const client = getOpenAIClient();
+        if (!client) {
+          res.status(503).json({
+            error: "AI chat is not configured (missing AI_INTEGRATIONS_OPENAI_API_KEY)",
+          });
+          return;
+        }
+
         const conversationId = parseInt(req.params.id);
         const { content } = req.body;
 
@@ -125,7 +142,7 @@ export function registerChatRoutes(app: Express): void {
         res.setHeader("Connection", "keep-alive");
 
         // Stream response from OpenAI
-        const stream = await openai.chat.completions.create({
+        const stream = await client.chat.completions.create({
           model: "gpt-4o-mini",
           messages: chatMessages,
           stream: true,

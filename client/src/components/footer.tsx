@@ -1,5 +1,6 @@
 import { useLanguage } from "@/lib/language-context";
-import { SiLinkedin, SiWhatsapp } from "react-icons/si";
+import { SiWhatsapp } from "react-icons/si";
+import { FaLinkedin } from "react-icons/fa";
 import { ArrowUpRight } from "lucide-react";
 const logoImage = "/attached_assets/1661853192216_1767668534815.jpg";
 
@@ -68,7 +69,7 @@ export function Footer() {
                 className="group p-3 rounded-xl bg-white/10 hover:bg-red-500 hover:text-white transition-all duration-300 hover:scale-110 text-slate-300"
                 data-testid="link-linkedin"
               >
-                <SiLinkedin className="h-5 w-5 transition-transform group-hover:rotate-6" />
+                <FaLinkedin className="h-5 w-5 transition-transform group-hover:rotate-6" />
               </a>
               <a
                 href="https://wa.me/962777775484"

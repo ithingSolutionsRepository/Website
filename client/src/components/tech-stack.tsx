@@ -12,7 +12,6 @@ import {
   SiNextdotjs,
   SiFigma,
   SiGooglecloud,
-  SiOpenai,
   SiFlutter,
   SiAngular,
   SiExpress,
@@ -28,7 +27,7 @@ import {
   SiAuth0,
 } from "react-icons/si";
 import { FaJava } from "react-icons/fa";
-import { TbBrandMysql } from "react-icons/tb";
+import { TbBrandMysql, TbBrandOpenai } from "react-icons/tb";
 import { VscAzure } from "react-icons/vsc";
 import { type IconType } from "react-icons";
 import { type LucideIcon } from "lucide-react";
@@ -61,7 +60,7 @@ const technologies: Technology[] = [
   { name: "REST API", icon: SiPostman, color: "#FF6C37" },
   { name: "Swagger", icon: SiSwagger, color: "#85EA2D" },
   { name: "GraphQL", icon: SiGraphql, color: "#E10098" },
-  { name: "OpenAI", icon: SiOpenai, color: "#00A67E" },
+  { name: "OpenAI", icon: TbBrandOpenai, color: "#00A67E" },
   { name: "Flutter", icon: SiFlutter, color: "#02569B" },
   { name: "Tailwind CSS", icon: SiTailwindcss, color: "#06B6D4" },
   { name: "Figma", icon: SiFigma, color: "#F24E1E" },
