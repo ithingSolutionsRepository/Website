@@ -215,7 +215,7 @@ export function Hero() {
                   <span className="block bg-gradient-to-r from-white via-slate-100 to-gray-100 bg-clip-text text-transparent animate-gradient">
                     {isRTL
                       ? "  تمكين حلول ذكية جاهزة للمستقبل"
-                      : "IEmpowering future ready smart solutions"}
+                      : "Empowering future ready smart solutions"}
                   </span>
                 </h1>
 
