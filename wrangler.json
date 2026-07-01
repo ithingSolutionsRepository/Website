@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "smart-solutions",
+  "name": "ithingsolutionswebsite",
   "compatibility_date": "2026-07-01",
   "build": {
     "command": "npm run build"
